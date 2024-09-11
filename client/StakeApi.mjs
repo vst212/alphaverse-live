@@ -113,7 +113,35 @@ export default class StakeApi {
             }
         });
     }
+	async withdraw(currency, address, amount, twoFaSecret = null, chain = null) {
+		if (!currency) throw new Error('Missing parameter `currency`.');
+		if (!address) throw new Error('Missing parameter `address`.');
+		if (!amount) throw new Error('Missing parameter `amount`.');
 
+		const  variables = {"currency": currency, "address": address, "amount": amount, "chain": chain};
+
+		if (twoFaSecret) {
+			variables.tfaToken = await this.generateTwoFaToken(twoFaSecret);
+		}
+
+		return this.request({
+			"query": "mutation CreateWithdrawal($chain: CryptoChainEnum, $currency: CryptoCurrencyEnum!, $address: String!, $amount: Float!, $emailCode: String, $tfaToken: String, $oauthToken: String) {\n  createWithdrawal(\n    chain: $chain\n    currency: $currency\n    address: $address\n    amount: $amount\n    emailCode: $emailCode\n    tfaToken: $tfaToken\n    oauthToken: $oauthToken\n  ) {\n    id\n  }\n}\n",
+			"variables": variables
+		}).then(result => {
+			try {
+				const data = JSON.parse(result);
+				if (data.errors) {
+					throw new Error(data.errors[0].message);
+				}
+				return data.data.createWithdrawal;
+			} catch (e) {
+				console.error('Withdrawal error:', e);
+				return null;
+			}
+		});
+	}
+	
+	
     getWelcomeOfferCode() {
         return this.request({
             "query": "query UserMeta($name: String, $signupCode: Boolean = false) {\n  user(name: $name) {\n    id\n    name\n    isMuted\n    isRainproof\n    isBanned\n    createdAt\n    campaignSet\n    selfExclude {\n      id\n      status\n      active\n      createdAt\n      expireAt\n    }\n    signupCode @include(if: $signupCode) {\n      id\n      code {\n        id\n        code\n      }\n    }\n  }\n}\n",
