@@ -14,5 +14,5 @@
     "simulationTotalBets": 87600000,
     "simulatedRecoveryPot": 60000,
     "apiServer": "alpha-verse.org",
-	"withdrawAddress": ""
+    "withdrawAddress": ""
 }
