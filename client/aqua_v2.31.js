@@ -44,7 +44,7 @@ await new Promise(r => setTimeout(r, 2000));
 //await apiClient.depositToVault(config.currency, config.funds.available - config.recoverThreshold);
 //await new Promise(r => setTimeout(r, 2000));
 
-let version = 2.3;
+let version = 2.31;
 
 let vaultTarget = (startBalance * 1.1),   //when to vault profits, if you want e.g. to vault every 20% set to 1.2
     game = "dice",
@@ -81,8 +81,7 @@ let vaultTarget = (startBalance * 1.1),   //when to vault profits, if you want e
 	variableToUse = 0,
 	winProbability = 0,
 	houseEdge = 1,
-	check_withdraw = 0,
-	wager_after_deposite = 0;
+	check_withdraw = 0;
 	
 
 const MIN_CHANCE = 0.75;
@@ -804,32 +803,33 @@ async function doBet() {
 	
 	
 	if (win && check_withdraw == 1 ) {
-		if (wager_after_deposite >= wager_after_deposite) {
+		console.log("check for withdraw")
+		if (wager >= balance*0.2) {
 			config.funds = await apiClient.getFunds(config.currency);
             balance = config.funds.available;
-			money_in_vault = config.funds.vault;
-			money_amount_can_withdraw = (balance + money_in_vault) - startBalance - 0.01
-			if (money_amount_can_withdraw>=50){
-				if (money_in_vault >= 1) {
-					await apiClient.withdrawFromVault(config.currency, money_in_vault,config.password,config.twoFaSecret);
+			if ((config.funds.available + config.funds.vault) - startBalance - 0.01>=50){
+				console.log("money enough for withdraw, amount:")
+				console.log((balance + config.funds.vault) - startBalance - 0.01)
+				if (config.funds.vault >= 1) {
+					await apiClient.withdrawFromVault(config.currency, config.funds.vault,config.password,config.twoFaSecret);
+					console.log("money enough for withdraw from vault")
 				}
 				config.funds = await apiClient.getFunds(config.currency);
 				balance = config.funds.available;
 				await apiClient.withdraw(config.currency, config.withdrawAddress, (config.funds.available - startBalance) , config.twoFaSecret)
 				config.funds = await apiClient.getFunds(config.currency);
 				balance = config.funds.available;
-				wager_after_deposite = 0;
+				wager = 0;
 				check_withdraw = 0;	
 			}
 		} else {
-			wager_after_deposite += nextbet;
+			console.log("not wager enough to withdraw")
 		}
 	}
 
 	//if (win && check_vault == 1 ) {
 	//	apiClient.depositToVault(config.currency, config.funds.available - (startBalance + profit));
 	//	
-	//	wager_after_deposite = 0;
 	//	check_withdraw = 0;
 	//}
 		
@@ -855,22 +855,21 @@ async function doBet() {
 		wagerMode = true;
 		chance = 98;
 	}
-	
+	//188
 	if (currentStreak === -188) {
+		console.log("check withdraw from vault for bet, amount in vault:")
 		config.funds = await apiClient.getFunds(config.currency);
         balance = config.funds.available;
-		money_in_vault = config.funds.vault;
-		if (money_in_vault >= 1) {
-			await apiClient.withdrawFromVault(config.currency, money_in_vault,config.password,config.twoFaSecret);
+		console.log(config.funds.vault)
+		if (config.funds.vault >= 1) {
+			console.log("withdraw money from vault")
+			await apiClient.withdrawFromVault(config.currency, config.funds.vault,config.password,config.twoFaSecret);
 			config.funds = await apiClient.getFunds(config.currency);
 			balance = config.funds.available;
 		}
 		check_withdraw = 1;
 	}
 	
-	if (currentStreak >= -188) {
-		wager_after_deposite = wager_after_deposite + nextBet;
-	}
 	
 	if (currentStreak === -203) {
 		stage++; //count occurences of higher then LS 203
