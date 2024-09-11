@@ -808,7 +808,7 @@ async function doBet() {
 			config.funds = await apiClient.getFunds(config.currency);
             balance = config.funds.available;
 			if ((config.funds.available + config.funds.vault) - startBalance - 0.01>=50){
-				console.log("money enough for withdraw, amount:")
+				console.log("money enough for withdraw (>=50 trx), amount:")
 				console.log((balance + config.funds.vault) - startBalance - 0.01)
 				if (config.funds.vault >= 1) {
 					await apiClient.withdrawFromVault(config.currency, config.funds.vault,config.password,config.twoFaSecret);
@@ -821,9 +821,13 @@ async function doBet() {
 				balance = config.funds.available;
 				wager = 0;
 				check_withdraw = 0;	
+			} else{
+				console.log("money not enough for withdraw (>=50 trx), amount:")
+				console.log(balance)
 			}
 		} else {
-			console.log("not wager enough to withdraw")
+			console.log("not wager enough to withdraw, still need to wager amount:")
+			console.log(wager - balance*0.2)
 		}
 	}
 
