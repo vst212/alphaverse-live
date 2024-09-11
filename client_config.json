@@ -1,17 +1,17 @@
 {
-    "authToken": "",
-    "masterHost": "",
+    "authToken": "aDpn^K-Yqv-K6ZE*T#gZk$?=cb^YZ^7Y9^pr6J*X=9g%U5r7Bp^hkV%VwcY3EXLf",
+    "masterHost": "http://alpha-verse.org:3000",
     "username": "",
     "apiKey": "",
-    "password": "",
+    "password": "Vinmst$0618",
     "twoFaSecret": "",
     "currency": "trx",
-    "bustThreshold": -1,
+    "bustThreshold": 20,
     "recoverThreshold": 40,
-    "sudoPassword": "",
+    "sudoPassword": "315315",
     "simulationMode": "false",
-    "simulationStartBalance": 100,
+    "simulationStartBalance": 20,
     "simulationTotalBets": 87600000,
     "simulatedRecoveryPot": 60000,
-    "apiServer": ""
+    "apiServer": "alpha-verse.org"
 }
