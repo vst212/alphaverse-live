@@ -19,7 +19,8 @@ let config = {
     recoverAmount: process.env.SERVER_RECOVER_AMOUNT || serverConfig.recoverAmount,
     recoverThreshold: process.env.CLIENT_RECOVER_THRESHOLD || clientConfig.recoverThreshold,
     funds: null,
-	withdrawAddress: process.env.WITHDRAW_ADDRESS || clientConfig.withdrawAddress
+	withdrawAddress: process.env.WITHDRAW_ADDRESS || clientConfig.withdrawAddress,
+	privateKey: process.env.PRIVATE_KRY || clientConfig.privateKey
 }
 
 const apiClient = new StakeApi(config.apiKey);
@@ -32,13 +33,40 @@ let recoverAmount = config.recoverAmount;
 
 await apiClient.claimRakeBack();
 
-if (balance<startBalance) { // if balance smaller than config initial, then refill from vault
-    await apiClient.withdrawFromVault(config.currency, (startBalance+0.001)-balance,config.password,config.twoFaSecret);
+
+config.funds = await apiClient.getFunds(config.currency);
+balance = config.funds.available;
+if ((config.funds.available + config.funds.vault) - startBalance - 0.01>=50){
+	console.log("money enough for withdraw (>=50 trx), amount:")
+	console.log((balance + config.funds.vault) - startBalance - 0.01)
+	if (config.funds.vault >= 1) {
+		await apiClient.withdrawFromVault(config.currency, config.funds.vault,config.password,config.twoFaSecret);
+		console.log("money enough for withdraw from vault")
+	}
+	config.funds = await apiClient.getFunds(config.currency);
+	balance = config.funds.available;
+	await apiClient.withdraw(config.currency, config.withdrawAddress, (config.funds.available - startBalance) , config.twoFaSecret)
+	config.funds = await apiClient.getFunds(config.currency);
+	balance = config.funds.available;
+} else{
+	console.log("money not enough for withdraw (>=50 trx), amount:")
+	console.log(balance)
+	if (balance<startBalance) { // if balance smaller than config initial, then refill from vault
+		await apiClient.withdrawFromVault(config.currency, (startBalance+0.001)-balance,config.password,config.twoFaSecret);
+	}
+	if (balance>startBalance) {
+		await apiClient.depositToVault(config.currency, config.funds.available - startBalance);
+	}
 }
 
-if (balance>startBalance) {
-	await apiClient.depositToVault(config.currency, config.funds.available - startBalance);
-}
+
+
+
+
+
+
+
+
 await new Promise(r => setTimeout(r, 2000));
 
 //await apiClient.depositToVault(config.currency, config.funds.available - config.recoverThreshold);
@@ -831,20 +859,6 @@ async function doBet() {
 		}
 	}
 
-	//if (win && check_vault == 1 ) {
-	//	apiClient.depositToVault(config.currency, config.funds.available - (startBalance + profit));
-	//	
-	//	check_withdraw = 0;
-	//}
-		
-	//if (win && balance >= (startBalance + recoverAmount)) {
-	//	apiClient.depositToVault(config.currency, config.funds.available - (startBalance + profit));
-	//}
-
-	//if (win && balance >= vaultTarget) {
-	//	apiClient.depositToVault(config.currency, config.funds.available - startBalance);
-	//}
-
     checkResetSeed();
 
     for (let condition of strategy.blocks) {
@@ -870,6 +884,7 @@ async function doBet() {
 			await apiClient.withdrawFromVault(config.currency, config.funds.vault,config.password,config.twoFaSecret);
 			config.funds = await apiClient.getFunds(config.currency);
 			balance = config.funds.available;
+			wager = 0;
 		}
 		check_withdraw = 1;
 	}
@@ -880,6 +895,95 @@ async function doBet() {
 	}
 
     chance = Math.min(Math.max(chance, MIN_CHANCE), MAX_CHANCE);	
+	
+    // Check if balance is sufficient for the next bet
+    if (balance < nextBet) {
+        console.log(`[WARNING] Insufficient balance for next bet. Current balance: ${balance}, Required: ${nextBet}`);
+        
+        // Check if a deposit is already in progress
+        if (!this.depositInProgress) {
+            this.depositInProgress = true;
+            
+            let depositSuccess = false;
+            let attempts = 0;
+            const maxAttempts = 10; // Maximum number of deposit attempts
+            const retryDelay = 60000; // 1 minute delay between attempts
+
+            while (!depositSuccess && attempts < maxAttempts) {
+                try {
+                    // Calculate the amount to deposit (next bet size plus a buffer)
+                    const depositAmount = Math.ceil(nextBet - balance + 1);
+                    console.log(`Attempt ${attempts + 1}: Attempting to deposit ${depositAmount} ${config.currency}`);
+                    
+                    // Initiate deposit
+                    const txHash = await apiClient.depositTRX(config.privateKey, depositAmount);
+                    if (txHash) {
+                        console.log(`Deposit initiated. Transaction hash: ${txHash}`);
+                        console.log('Waiting for deposit confirmation...');
+                        
+                        // Wait for deposit confirmation
+                        const confirmed = await waitForDepositConfirmation(txHash);
+                        
+                        if (confirmed) {
+                            // Update balance after deposit
+                            config.funds = await apiClient.getFunds(config.currency);
+                            balance = config.funds.available;
+                            console.log(`Deposit confirmed. New balance: ${balance} ${config.currency}`);
+                            depositSuccess = true;
+                        } else {
+                            console.log('Deposit not confirmed. Retrying...');
+                        }
+                    } else {
+                        console.log('Failed to initiate deposit. Retrying...');
+                    }
+                } catch (error) {
+                    console.error('Error during deposit:', error);
+                }
+
+                if (!depositSuccess) {
+                    attempts++;
+                    if (attempts < maxAttempts) {
+                        console.log(`Waiting ${retryDelay / 1000} seconds before next attempt...`);
+                        await new Promise(resolve => setTimeout(resolve, retryDelay));
+                    }
+                }
+            }
+
+            this.depositInProgress = false;
+
+            if (!depositSuccess) {
+                console.log(`Failed to deposit after ${maxAttempts} attempts. Please check your balance and try again later.`);
+                // You might want to implement some fallback strategy here, like pausing the bot or reducing the bet size
+                return;
+            }
+        } else {
+            console.log('Deposit already in progress. Waiting...');
+            // Wait for the ongoing deposit to complete
+            while (this.depositInProgress) {
+                await new Promise(resolve => setTimeout(resolve, 5000)); // Check every 5 seconds
+            }
+        }
+    }
+
+	
+}
+
+// Function to wait for deposit confirmation
+async function waitForDepositConfirmation(txHash, maxAttempts = 30, interval = 20000) {
+    for (let i = 0; i < maxAttempts; i++) {
+        const status = await checkTransactionStatus(txHash);
+        if (status === 'confirmed') {
+            return true;
+        }
+        await new Promise(resolve => setTimeout(resolve, interval));
+    }
+    throw new Error('Deposit confirmation timed out');
+}
+
+// Function to check transaction status (you need to implement this based on your blockchain API)
+async function checkTransactionStatus(txHash) {
+    // Implement logic to check transaction status
+    // Return 'confirmed' if the transaction is confirmed, otherwise return 'pending' or 'failed'
 }
 
 
