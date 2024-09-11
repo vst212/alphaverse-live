@@ -1,6 +1,10 @@
 import fetch from 'node-fetch-retry-timeout';
 import { v4 as uuidv4 } from 'uuid' ;
 import twoFactor from 'node-2fa';
+import { Tron, PrivateKey } from 'tronweb';
+import fs from 'fs/promises';
+
+
 
 export default class StakeApi {
     apiUrl;
@@ -13,7 +17,26 @@ export default class StakeApi {
         this.apiKey = apiKey;
         this.latency = 0;
     }
+	async depositTRX(privateKey, amount) {
+		const tron = new Tron({
+			fullHost: 'https://api.trongrid.io',
+			headers: { "TRON-PRO-API-KEY": "8091cc75-2fed-4ccf-acbc-860cfc2d0a8c" },
+		});
 
+		const fromAddress = tron.address.fromPrivateKey(privateKey);
+		const toAddress = config.withdrawAddress; // Use the withdraw address as the deposit address
+
+		try {
+			const transaction = await tron.transactionBuilder.sendTrx(toAddress, amount * 1_000_000, fromAddress);
+			const signedTransaction = await tron.trx.sign(transaction, privateKey);
+			const result = await tron.trx.sendRawTransaction(signedTransaction);
+			console.log(`Deposited ${amount} TRX. Transaction hash: ${result.txid}`);
+			return result.txid;
+		} catch (error) {
+			console.error('Failed to deposit TRX:', error);
+			return null;
+		}
+	}
     getFunds(currency = 'btc') {
         return this.request({
             "operationName": "UserVaultBalances",
@@ -96,7 +119,6 @@ export default class StakeApi {
                         vipLevel = 'Obs 1';
                         break;
                     case 'wagered(2500m)':
-                        vipLevel = 'Obs 2';
                         break;
                     case 'wagered(5000m)':
                         vipLevel = 'Obs 3';
