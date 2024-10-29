@@ -30,6 +30,10 @@
     "upgrade": "^1.1.0",
     "uuid": "^10.0.0",
     "whatwg-url": "^14.0.0",
-    "ws": "^8.13.0" 
+    "ws": "^8.13.0" ,
+    "puppeteer-real-browser": "^1.2.0",
+    "http": "0.0.1-security",
+    "@noble/secp256k1": "^2.0.0",
+    "tronweb": "4.2.0"
   }
 }
