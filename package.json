@@ -10,7 +10,7 @@
     "2faAPI": "node server/2faServer.js",
     "apiServer": "node server/2faServer.js",
     "postinstall": "node client/fix-tr46.js",
-    "dicebot": "node client/baccaratMartingale_v6.1.js"
+    "dicebot": "node client/baccaratMartingale_v6.3.js"
   },
   "dependencies": {
     "@noble/secp256k1": "^2.0.0",
@@ -30,7 +30,7 @@
     "socket.io": "^4.7.5",
     "socket.io-client": "^4.7.5",
     "tr46": "^5.0.0",
-    "tronweb": "^4.2.0",
+    "tronweb": "4.2.0",
     "upgrade": "^1.1.0",
     "uuid": "^10.0.0",
     "whatwg-url": "^14.0.0",
