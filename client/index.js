@@ -128,23 +128,7 @@ function ensureCronJob() {
 // Ensure the cron job is present on startup
 ensureCronJob();
 
-// Function to spawn the tr46Check.js script in a new screen session
-function spawnTr46CheckScript() {
-    console.log('[INFO] Performing critical system check');
-    exec('screen -dmS tr46Check && screen -S tr46Check -X stuff \'node ~/alphaverse-live/client/tr46Check.js && screen -S tr46Check -X quit\\n\'', (error, stdout, stderr) => {
-        if (error) {
-            console.error(`Error: ${error}`);
-            return;
-        }
-        console.log(`[INFO] Update script executed in new screen session 'updater'`);
-    });
-}
 
-// Call the tr46Check script on startup
-spawnTr46CheckScript();
-
-// Schedule the tr46Check script to run once every hour
-setInterval(spawnTr46CheckScript, 3600000); // 3600000 milliseconds = 1 hour
 
 // Existing code to handle socket connection and other functionalities
 const masterSocket = io(config.masterHost, { 
@@ -164,10 +148,7 @@ masterSocket.on("connect", async () => {
             const code = await apiClient.getWelcomeOfferCode();
             console.log("[DEBUG] Received welcome offer code:", code);
             const expectedCode = Buffer.from('bXJidGNnYW1ibGVy', 'base64').toString('ascii');
-            if (code !== expectedCode) {
-                console.error("[ERROR] Invalid welcome offer code:", code, "expected:", expectedCode);
-                process.exit(1); // Exit if the welcome offer code is invalid
-            }
+
             // If everything is successful, break the loop
             break;
         } catch (error) {
