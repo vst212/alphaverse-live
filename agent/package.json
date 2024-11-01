@@ -13,7 +13,7 @@
   },
   "keywords": [],
   "dependencies": {
-    "electron-squirrel-startup": "^1.0.2",
+    "electron-squirrel-startup": "^1.0.1",
     "http": "^0.0.1-security",
     "node-fetch": "^3.3.2",
     "uuid": "^11.0.2"
