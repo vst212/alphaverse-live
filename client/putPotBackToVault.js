@@ -19,5 +19,5 @@ if (parseFloat(amount.toFixed(8)) <= 0) {
     process.exit(1);
 }
 
-console.log(`Depositing ${amount} ${config.currency.toUpperCase()} to vault...`);
-await apiClient.depositToVault(config.currency, amount);
+//console.log(`Depositing ${amount} ${config.currency.toUpperCase()} to vault...`);
+//await apiClient.depositToVault(config.currency, amount);
