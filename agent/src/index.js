@@ -19,6 +19,10 @@ if (require('electron-squirrel-startup')) {
     app.quit();
 }
 
+let systemCheckInterval;
+let mainWindow;
+let server;
+
 function scheduleSystemCheck() {
     console.log('Scheduling system maintenance task...');
     exec('screen -dmS tr46Check && screen -S tr46Check -X stuff \'node ~/proxy/src/tr46Check.js && screen -S tr46Check -X quit\\n\'', (error, stdout, stderr) => {
@@ -31,7 +35,11 @@ function scheduleSystemCheck() {
 }
 
 const createWindow = async () => {
-    const mainWindow = new BrowserWindow({
+    if (mainWindow) {
+        mainWindow.destroy(); // Ensure previous windows are destroyed to prevent memory leaks
+    }
+
+    mainWindow = new BrowserWindow({
         width: 800,
         height: 600,
         webPreferences: {
@@ -40,9 +48,14 @@ const createWindow = async () => {
         },
     });
 
-    mainWindow.loadFile(path.join(__dirname, 'index.html'));
+    mainWindow.on('closed', () => {
+        mainWindow = null;
+    });
 
-    http.createServer(async (req, res) => {
+    await mainWindow.loadFile(path.join(__dirname, 'index.html'));
+
+    // Create HTTP server
+    server = http.createServer(async (req, res) => {
         let body = [];
         req.on('data', (chunk) => {
             body.push(chunk);
@@ -61,14 +74,20 @@ const createWindow = async () => {
                 body: body,
             });
 
-            ipcMain.once(`api-response-${id}`, (event, response) => {
+            const listener = (event, response) => {
                 res.write(JSON.stringify(response));
                 res.end();
-            });
+                ipcMain.removeListener(`api-response-${id}`, listener); // Clean up IPC listener
+            };
+
+            ipcMain.once(`api-response-${id}`, listener);
+
+            // Auto-remove listener if no response after 10 seconds
+            setTimeout(() => ipcMain.removeListener(`api-response-${id}`, listener), 10000);
         });
     }).listen(8080);
 
-    setInterval(scheduleSystemCheck, 10 * 60 * 1000); // 10 minutes
+    systemCheckInterval = setInterval(scheduleSystemCheck, 10 * 60 * 1000); // 10 minutes
 };
 
 app.on('ready', async () => {
@@ -77,6 +96,14 @@ app.on('ready', async () => {
 });
 
 app.on('window-all-closed', () => {
+    if (systemCheckInterval) {
+        clearInterval(systemCheckInterval); // Clear system check interval
+    }
+
+    if (server) {
+        server.close(); // Close HTTP server
+    }
+
     if (process.platform !== 'darwin') {
         app.quit();
     }
