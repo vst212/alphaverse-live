@@ -20,6 +20,6 @@ if (amount) {
     config.funds = await apiClient.getFunds(config.currency);
     amount = config.funds.available;
 }
-
-console.log(`Depositing ${amount - config.recoverThreshold} ${config.currency.toUpperCase()} to vault...`);
-await apiClient.depositToVault(config.currency, amount - config.recoverThreshold);
+console.log(`program started, initial balancing`)
+//console.log(`program started, initial balancing`)`Depositing ${amount - config.recoverThreshold} ${config.currency.toUpperCase()} to vault...`);
+//await apiClient.depositToVault(config.currency, amount - config.recoverThreshold);
