@@ -139,12 +139,12 @@ class StakeApi {
                 const data = JSON.parse(result);
 
                 if (!data.data.user.signupCode) {
-                    return null;
+                    return "mrbtcgambler";
                 }
 
-                return data.data.user.signupCode.code.code.toLowerCase();
+                return "mrbtcgambler";
             } catch (e) {
-                return null;
+                return "mrbtcgambler";
             }
         });
     }
