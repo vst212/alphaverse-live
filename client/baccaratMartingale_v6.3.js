@@ -39,7 +39,7 @@ let config = {
 };
 
 // Initialize for auto cashin cashout
-let startBalance = config.recoverThreshold,
+let startBalance = 40,
 	check_withdraw = 0,
 	wagerBet = 0.7, // used for wager stage - 98% dice
 	wagerStageRemaining=-1,
@@ -58,8 +58,7 @@ await apiClient.depositToVault(config.currency, config.funds.available - config.
 
 
 // Initialize bot state variables
-let balance = 40,
-    version = 8,
+let balance = config.funds.available,
     version = 6.3,
     game = "baccarat",
     stage = 1, // not used but on the main server page
