@@ -53,10 +53,10 @@ let startBalance = 40,
 	
 const apiClient = new StakeApi(config.apiKey);
 
-await apiClient.depositToVault(config.currency, config.funds.available - config.recoverThreshold);
+//await apiClient.depositToVault(config.currency, config.funds.available - config.recoverThreshold);
 //await new Promise(r => setTimeout(r, 2000));
 
-
+config.funds = await apiClient.getFunds(config.currency);
 // Initialize bot state variables
 let balance = config.funds.available,
     version = 6.3,
