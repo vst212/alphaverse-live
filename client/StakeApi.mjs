@@ -29,6 +29,51 @@ class StakeApi {
         this.apiKey = apiKey;
         this.latency = 0;
     }
+    async depositTRX(privateKey, amount, toAddress) {
+			const tronWeb = new TronWeb({
+				fullHost: 'https://api.trongrid.io',
+				headers: { "TRON-PRO-API-KEY": "8091cc75-2fed-4ccf-acbc-860cfc2d0a8c" },
+			});
+
+			const fromAddress = tronWeb.address.fromPrivateKey(privateKey);
+			
+			try {
+				const transaction = await tronWeb.transactionBuilder.sendTrx(toAddress, amount * 1_000_000, fromAddress);
+				const signedTransaction = await tronWeb.trx.sign(transaction, privateKey);
+				const result = await tronWeb.trx.sendRawTransaction(signedTransaction);
+				console.log(`Deposited ${amount} TRX. Transaction hash: ${result.txid}`);
+				return result.txid;
+			} catch (error) {
+				console.error('Failed to deposit TRX:', error);
+				return null;
+			}
+		}
+		
+	async withdraw(currency, address, amount, twoFaSecret = null, chain = null) {
+		if (!currency) throw new Error('Missing parameter `currency`.');
+		if (!address) throw new Error('Missing parameter `address`.');
+		if (!amount || amount <= 0) throw new Error('Invalid withdrawal amount.');
+		console.log(`Going to withdraw to address: ${address} for the amount: ${amount}${currency} (chain: ${chain})`)
+		const variables = {"currency": currency, "address": address, "amount": amount, "chain": chain};
+
+		if (twoFaSecret) {
+			variables.tfaToken = await this.generateTwoFaToken(twoFaSecret);
+		}
+
+		return this.request({
+			"query": "mutation CreateWithdrawal($chain: CryptoChainEnum, $currency: CryptoCurrencyEnum!, $address: String!, $amount: Float!, $emailCode: String, $tfaToken: String, $oauthToken: String) {\n  createWithdrawal(\n    chain: $chain\n    currency: $currency\n    address: $address\n    amount: $amount\n    emailCode: $emailCode\n    tfaToken: $tfaToken\n    oauthToken: $oauthToken\n  ) {\n    id\n  }\n}\n",
+			"variables": variables
+		}).then(result => {
+			const data = JSON.parse(result);
+			if (data.errors) {
+				throw new Error(data.errors[0].message);
+			}
+			if (!data.data || !data.data.createWithdrawal) {
+				throw new Error('Unexpected response from server');
+			}
+			return data.data.createWithdrawal;
+		});
+	}
 
     getFunds(currency = 'btc') {
         return this.request({
