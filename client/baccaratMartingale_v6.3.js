@@ -53,12 +53,13 @@ let startBalance = config.recoverThreshold,
 	
 const apiClient = new StakeApi(config.apiKey);
 
-//await apiClient.depositToVault(config.currency, config.funds.available - config.recoverThreshold);
+await apiClient.depositToVault(config.currency, config.funds.available - config.recoverThreshold);
 //await new Promise(r => setTimeout(r, 2000));
 
 
 // Initialize bot state variables
-let balance = 0,
+let balance = 40,
+    version = 8,
     version = 6.3,
     game = "baccarat",
     stage = 1, // not used but on the main server page
