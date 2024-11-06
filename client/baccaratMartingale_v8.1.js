@@ -336,7 +336,7 @@ async function doBet() {
 
 
 	//start recovery
-	if (balance>=60) {
+	if (balance>=80) {
 		console.log("check withdraw from vault for bet, amount in vault:")
 		config.funds = await apiClient.getFunds(config.currency);
         balance = config.funds.available;
