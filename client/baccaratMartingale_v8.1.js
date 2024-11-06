@@ -512,7 +512,7 @@ while (true) {
 					await checkAndRefillBalance();
 				};
 				if (data.errors[0].errorType === 'insignificantBet') {
-					baseBet = baseBet + 0.000001,
+					baseBet = baseBet + 0.000001;
 				};
 		      
 							
