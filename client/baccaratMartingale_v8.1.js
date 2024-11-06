@@ -87,7 +87,7 @@ let balance = config.funds.available,
     tied = false,
     lost = false,
     // Baccarat Bet Settings
-    baseBet = 0.00006,
+    baseBet = 0.000062,
     previousBet = baseBet,
     nextBet = baseBet,
     tieBet = 0, // Baccarat tie bet amount
