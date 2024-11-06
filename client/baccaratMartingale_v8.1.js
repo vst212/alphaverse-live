@@ -507,11 +507,14 @@ while (true) {
 
                             config.funds = await apiClient.getFunds(config.currency);
                             balance = config.funds.available;
-							
-							// If it's an insufficient balance error, trigger a deposit
-							if (data.errors[0].errorType === 'insufficientBalance') {
-								await checkAndRefillBalance();
-							}
+				// If it's an insufficient balance error, trigger a deposit
+				if (data.errors[0].errorType === 'insufficientBalance') {
+					await checkAndRefillBalance();
+				};
+				if (data.errors[0].errorType === 'insignificantBet') {
+					baseBet = baseBet + 0.000001,
+				};
+		      
 							
                             return null;
                         }
