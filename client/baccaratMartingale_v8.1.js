@@ -297,6 +297,7 @@ async function doBet() {
 				check_withdraw = 0;	
 				wagerStageRemaining = -1;
 				totalDeposited = 0;
+				nextbet = baseBet;
 			}
 		}
 	} 
