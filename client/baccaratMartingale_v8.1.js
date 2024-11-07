@@ -61,8 +61,8 @@ const apiClient = new StakeApi(config.apiKey);
 config.funds = await apiClient.getFunds(config.currency);
 
 // Deposit to vault to set up recovery pot
-await apiClient.depositToVault(config.currency, config.funds.available - clientConfig.recoverThreshold);
-await new Promise(r => setTimeout(r, 2000));
+//await apiClient.depositToVault(config.currency, config.funds.available - clientConfig.recoverThreshold);
+//await new Promise(r => setTimeout(r, 2000));
 
 
 
