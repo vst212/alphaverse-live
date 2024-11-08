@@ -28,14 +28,20 @@ let startBalance = 40,
 	MANUAL_INTERVENTION_THRESHOLD = 1100;
 	
 
+// Create StakeApi instance
 const apiClient = new StakeApi(config.apiKey);
 
-//await apiClient.depositToVault(config.currency, config.funds.available - config.recoverThreshold);
+// Fetch initial funds
+config.funds = await apiClient.getFunds(config.currency);
+
+// Deposit to vault to set up recovery pot
+//await apiClient.depositToVault(config.currency, config.funds.available - clientConfig.recoverThreshold);
 //await new Promise(r => setTimeout(r, 2000));
 
-let version = 1.1;
 
-let vaultTarget = (startBalance * 1.1),   //when to vault profits, if you want e.g. to vault every 20% set to 1.2
+
+// Initialize bot state variables
+let balance = config.funds.available, vaultTarget = (startBalance * 1.1),   //when to vault profits, if you want e.g. to vault every 20% set to 1.2
     game = "dice",
 	baseBet = 0.000063,// baseBet: 0.0001 TRX (minimum Bet)
 	wagerMode = false,
@@ -88,7 +94,7 @@ async function initialSetup() {
 		}
 		
         config.funds = await apiClient.getFunds(config.currency);
-        let balance = config.funds.available; // Update the global balance
+        balance = config.funds.available; // Update the global balance
         let balanceInitial = balance;
         let recoverAmount = config.recoverAmount;
 		try{
