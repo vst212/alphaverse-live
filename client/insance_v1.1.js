@@ -37,7 +37,7 @@ let version = 1.1;
 
 let vaultTarget = (startBalance * 1.1),   //when to vault profits, if you want e.g. to vault every 20% set to 1.2
     game = "dice",
-	baseBet = 000063,// baseBet: 0.0001 TRX (minimum Bet)
+	baseBet = 0.000063,// baseBet: 0.0001 TRX (minimum Bet)
 	wagerMode = false,
 	initialBetSize = baseBet,
     betHigh = true,
