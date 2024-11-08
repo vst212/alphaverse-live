@@ -88,7 +88,7 @@ async function initialSetup() {
 		}
 		
         config.funds = await apiClient.getFunds(config.currency);
-        balance = config.funds.available; // Update the global balance
+        let balance = config.funds.available; // Update the global balance
         let balanceInitial = balance;
         let recoverAmount = config.recoverAmount;
 		try{
