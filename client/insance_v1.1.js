@@ -72,7 +72,9 @@ let balance = config.funds.available,
 	seedChangeAfterWinStreak = 0,
 	seedChangeAfterLossStreak = 0,
 	seedChangeFlag = false,
-	variableToUse = 0;
+	variableToUse = 0,
+    pauseLogged = false;
+
 
 
 	
@@ -670,7 +672,9 @@ while (true) {
         await new Promise(r => setTimeout(r, 1000));
 
 			continue;
-		}
+		} else {
+        pauseLogged = false; // Reset the flag when not paused
+    }
 
     try {
         diceRoll = await apiClient.diceRoll(chance, betHigh, simulation ? 0 : nextBet, config.currency).then(async (result) => {
