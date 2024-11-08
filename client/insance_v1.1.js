@@ -1,8 +1,3 @@
-//** Prime Pro V1.7 Strategy from Dimster, fitted for alphaverse                     																**//
-//** RP1: 900 TRX, RP2: 6400 TRX, Balance: 40 TRX, Bust Threashold: 20TRX         																	**//
-//** Note: highest LS was LS46 so far, which works with RP2 (till LS 49 max)      																	**//
-//** expected profit: 50 TRX per day, wager: 1000 TRX per day (by 400.000 divider 																	**//
-
 import { unlink, access, constants } from 'fs';
 import { readFile, writeFile } from 'fs/promises';
 import StakeApi from "./StakeApi.mjs";
