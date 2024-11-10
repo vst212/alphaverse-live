@@ -488,7 +488,7 @@ async function doBet() {
 
 
 
-        if (balance >=(startBalance+25)) {
+        if (balance >=(50)) {
             console.log("check withdraw from vault for bet, amount in vault:")
             config.funds = await apiClient.getFunds(config.currency);
             balance = config.funds.available;
@@ -504,7 +504,7 @@ async function doBet() {
 
         chance = Math.min(Math.max(chance, MIN_CHANCE), MAX_CHANCE);
     }
-
+}
 
 // Delete old state file if it exists
     const dicebotStateFilename = new URL('/mnt/ramdrive/dicebot_state.json', import.meta.url);
@@ -740,4 +740,3 @@ async function doBet() {
             }
         }
     }
-}
