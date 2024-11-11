@@ -10,7 +10,7 @@
     "2faAPI": "node server/2faServer.js",
     "apiServer": "node server/2faServer.js",
     "postinstall": "node client/fix-tr46.js",
-    "dicebot": "node client/martin52_v2.0.js"
+    "dicebot": "node client/martin52_v1.0.js"
   },
   "dependencies": {
     "axios": "^1.7.7",
