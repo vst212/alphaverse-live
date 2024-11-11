@@ -25,7 +25,7 @@ let startBalance = 26,
     lastDepositAttempt = 0,
     totalDeposited = 0,
     DEPOSIT_COOLDOWN = 2 * 60 * 1000, // 2 minutes
-    MANUAL_INTERVENTION_THRESHOLD = 410;
+    MANUAL_INTERVENTION_THRESHOLD = 660;
 
 
 // Create StakeApi instance
@@ -346,8 +346,6 @@ async function doBet() {
         }
     }
 
-
-    
     //Start Wager Stage by reaching the Double WagerBet
     if (wagerStageRemaining>=0) {
         nextBet = wagerBet;
