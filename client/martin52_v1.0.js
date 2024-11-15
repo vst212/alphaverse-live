@@ -602,7 +602,8 @@ async function doBet() {
         pauseFileUrl = new URL('pause', import.meta.url);
     while (true) {
         access(pauseFileUrl, constants.F_OK, (error) => {
-            paused = !error;
+            //paused = !error;
+            paused = false;
         });
         if (paused) {
             if (!pauseLogged) {
