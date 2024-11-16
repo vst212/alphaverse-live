@@ -29,17 +29,21 @@ let startBalance = 26,
 
 
     while (true) {
-        // Add this after StakeApi initialization
         try {
             const apiClient = new StakeApi(config.apiKey);
             config.funds = await apiClient.getFunds(config.currency);
             
             if (!config.funds) {
-                console.error('[ERROR] Failed to fetch initial funds');
+                console.error('[ERROR] Failed to fetch initial funds, retrying in 5 seconds...');
+                await new Promise(r => setTimeout(r, 5000));
+                continue;
             }
+            
+            console.log('[INFO] Successfully initialized with funds:', config.funds);
             break;
         } catch (error) {
             console.error('[ERROR] Failed to initialize StakeApi:', error);
+            await new Promise(r => setTimeout(r, 5000));
         }
     }
 
