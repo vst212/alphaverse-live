@@ -28,11 +28,21 @@ let startBalance = 26,
     MANUAL_INTERVENTION_THRESHOLD = 999;
 
 
-// Create StakeApi instance
-const apiClient = new StakeApi(config.apiKey);
+    while (true) {
+        // Add this after StakeApi initialization
+        try {
+            const apiClient = new StakeApi(config.apiKey);
+            config.funds = await apiClient.getFunds(config.currency);
+            
+            if (!config.funds) {
+                console.error('[ERROR] Failed to fetch initial funds');
+            }
+            break;
+        } catch (error) {
+            console.error('[ERROR] Failed to initialize StakeApi:', error);
+        }
+    }
 
-// Fetch initial funds
-config.funds = await apiClient.getFunds(config.currency);
 
 // Deposit to vault to set up recovery pot
 //await apiClient.depositToVault(config.currency, config.funds.available - clientConfig.recoverThreshold);
