@@ -456,41 +456,26 @@ async function doBet() {
         }
 
         try {
-            diceRoll = await apiClient.diceRoll(chance, betHigh, simulation ? 0 : nextBet, config.currency).then(async (result) => {
-                try {
-                    const data = JSON.parse(result);
-
-                    if (data.errors) {
-                        console.error('[ERROR] Dicebet response: ', data);
-
-                        //if (!simulation) {
-                        //    config.funds = await apiClient.getFunds(config.currency);
-                        //    balance = config.funds.available;
-                        //}
-                        // If it's an insufficient balance error, trigger a deposit
-                        if (data.errors[0].errorType === 'insufficientBalance') {
-                            await checkAndRefillBalance();
-                        };
-                        if (data.errors[0].errorType === 'insignificantBet') {
-                            baseBet = baseBet + 0.000001;
-                        };
-
-
-                        return null;
-                    }
-
-                    return data.data.diceRoll;
-                } catch (e) {
-                    console.error('[ERROR]', e, result);
-
-                   // if (!simulation) {
-                   //     config.funds = await apiClient.getFunds(config.currency);
-                   //     balance = config.funds.available;
-                   // }
-
-                    return null;
+            const result = await apiClient.diceRoll(chance, betHigh, simulation ? 0 : nextBet, config.currency);
+            const data = JSON.parse(result);
+        
+            if (data.errors) {
+                console.error('[ERROR] Dicebet response: ', data.errors);
+                // Handle specific errors like insufficient balance or insignificant bet
+                if (data.errors[0].errorType === 'insufficientBalance') {
+                    await checkAndRefillBalance();
                 }
-            }).catch(error => console.error(error));
+                if (data.errors[0].errorType === 'insignificantBet') {
+                    baseBet += 0.000001;
+                }
+                continue; // Skip the rest of the loop
+            }
+        
+            diceRoll = data.data.diceRoll;
+        } catch (e) {
+            console.error('[ERROR] Failed to parse dice roll response:', e);
+            diceRoll = null;
+        }
 
             if (!diceRoll || !diceRoll.state) {
                 console.log('[ERROR] Pausing for 5 seconds...', diceRoll);
