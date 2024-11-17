@@ -48,10 +48,6 @@ let apiClient = new StakeApi(config.apiKey);;
     }
 
 
-// Deposit to vault to set up recovery pot
-//await apiClient.depositToVault(config.currency, config.funds.available - clientConfig.recoverThreshold);
-//await new Promise(r => setTimeout(r, 2000));
-
 
 
 // Initialize bot state variables
@@ -144,7 +140,7 @@ async function initialSetup() {
 
                     // Wait for balance to update before proceeding
                     while (true) {
-                        await new Promise(resolve => setTimeout(resolve, 10000)); // Wait for 10 seconds before checking again
+                        await new Promise(resolve => setTimeout(resolve, 20000)); // Wait for 20 seconds before checking again
                         config.funds = await apiClient.getFunds(config.currency);
                         balance = config.funds.available;
                         if (balance >= startBalance) {
@@ -166,16 +162,6 @@ async function initialSetup() {
 
         if (withdrawAmount >= 20) {
             console.log(`Money enough for withdraw (>=20 ${config.currency}), amount: ${withdrawAmount}`);
-            if (config.funds.vault >= 1) {
-                console.log('Withdrawing everything from vault...');
-                await apiClient.withdrawFromVault(config.currency, config.funds.vault, config.password, config.twoFaSecret);
-                console.log(`Withdrawn ${config.funds.vault} ${config.currency} from vault`);
-                config.funds = await apiClient.getFunds(config.currency);
-                balance = config.funds.available;
-            }
-
-            
-
             // Add a delay here for 2FA renewal
             console.log("Waiting for 2FA renewal...");
             await new Promise(resolve => setTimeout(resolve, 30000));
@@ -203,8 +189,6 @@ async function initialSetup() {
             console.log(balance);
             if (balance > startBalance) {
                 const depositAmount = balance - startBalance;
-                await apiClient.depositToVault(config.currency, depositAmount);
-                console.log(`Deposited ${depositAmount} ${config.currency} to vault`);
             }
         }
 
@@ -219,36 +203,12 @@ async function initialSetup() {
 // Call the initial setup
 await initialSetup();
 
-
-function resetStats() {
-    profit = 0;
-}
-
 function getBetsPerHour() {
     const now = Date.now();
     lastHourBets = lastHourBets.filter((timestamp) => now - timestamp <= 60 * 60 * 1000);
     return lastHourBets.length;
 }
 
-/**
- * Returns a random number between min (inclusive) and max (exclusive)
- */
-function getRandomArbitrary(min, max) {
-    return Math.random() * (max - min) + min;
-}
-
-/**
- * Returns a random integer between min (inclusive) and max (inclusive).
- * The value is no lower than min (or the next integer greater than min
- * if min isn't an integer) and no greater than max (or the next integer
- * lower than max if max isn't an integer).
- * Using Math.round() will give you a non-uniform distribution!
- */
-function getRandomInt(min, max) {
-    min = Math.ceil(min);
-    max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-}
 
 /**
  * seed Reset only at win Streaks to not Reset during a Loss Streak
@@ -272,130 +232,6 @@ function checkResetSeed() {
     if (seedChangeFlag === true && currentStreak>-1) { //only use Seed Reset when not in a Loss Streak
         seedChangeFlag = false;
         apiClient.resetSeed();
-    }
-}
-
-function isMatching(conditionType, conditionsOn) {
-    if (conditionType === 'bets') {
-        variableToUse = 0;
-        switch (conditionsOn.betType) {
-            case 'bet':
-                variableToUse = bets;
-                break;
-            case 'win':
-                if (!win) {
-                    return false;
-                }
-                variableToUse = conditionsOn.type === 'every' ? winCount : currentStreak;
-                break;
-            case 'lose':
-                if (win) {
-                    return false;
-                }
-                variableToUse = conditionsOn.type === 'every' ? lossCount : -currentStreak;
-                break;
-            default:
-                log(`error in conditions, not recognized condition bet type ${conditionsOn.betType}`);
-                engine.stop();
-        }
-
-        switch (conditionsOn.type) {
-            case 'every':
-                return !(variableToUse % conditionsOn.value);
-            case 'everyStreakOf':
-                return !(variableToUse % conditionsOn.value);
-            case 'firstStreakOf':
-                return variableToUse === conditionsOn.value;
-            case 'streakGreaterThan':
-                return variableToUse > conditionsOn.value;
-            case 'streakLowerThan':
-                return variableToUse < conditionsOn.value;
-            default:
-                log(`error in conditions, not recognized condition on type ${conditionsOn.type}`);
-                engine.stop();
-        }
-    } else // 'profit'
-    {
-        variableToUse = 0;
-        switch (conditionsOn.profitType) {
-            case 'balance':
-                variableToUse = balance;
-                break;
-            case 'loss':
-                variableToUse = -profit;
-                break;
-            case 'profit':
-                variableToUse = profit;
-                break;
-            default:
-                log(`error in conditions, not recognized condition on profitType ${conditionsOn.profitType}`);
-                engine.stop();
-        }
-
-        switch (conditionsOn.type) {
-            case 'greaterThan':
-                return variableToUse > conditionsOn.value;
-            case 'greaterThanOrEqualTo':
-                return variableToUse >= conditionsOn.value;
-            case 'lowerThan':
-                return variableToUse < conditionsOn.value;
-            case 'lowerThanOrEqualTo':
-                return variableToUse <= conditionsOn.value;
-            default:
-                log(`error in conditions, not recognized condition on type ${conditionsOn.type}`);
-                engine.stop();
-        }
-    }
-}
-
-function execute(doAction) {
-    switch (doAction.type) {
-        case 'increaseByPercentage':
-            //nextBet *= 1 + doAction.value / 100;
-            nextBet *= getRandomArbitrary((1 + doAction.value / 100), ((1 + doAction.value / 100)+0.002)); //add randomness to the increases
-            break;
-        case 'decreaseByPercentage':
-            nextBet *= 1 - doAction.value / 100;
-            break;
-        case 'increaseWinChanceBy':
-            chance *= 1 + doAction.value / 100;
-            break;
-        case 'decreaseWinChanceBy':
-            chance *= 1 - doAction.value / 100;
-            break;
-        case 'addToAmount':
-            nextBet += doAction.value;
-            break;
-        case 'subtractFromAmount':
-            nextBet -= doAction.value;
-            break;
-        case 'addToWinChance':
-            chance += doAction.value;
-            break;
-        case 'subtractFromWinChance':
-            chance -= doAction.value;
-            break;
-        case 'setAmount':
-            nextBet = doAction.value;
-            break;
-        case 'setWinChance':
-            chance = doAction.value;
-            break;
-        case 'switchOverUnder':
-            betHigh = !betHigh;
-            break;
-        case 'resetAmount':
-            nextBet = initialBetSize;
-            break;
-        case 'resetWinChance':
-            chance = initialChance;
-            break;
-        case 'stop':
-            engine.stop();
-            break;
-        default:
-            log(`error in conditions, not recognized action type ${doAction.type}`);
-            engine.stop();
     }
 }
 
@@ -425,6 +261,7 @@ async function doBet() {
     else {
         lossCount++;
     }
+    
     if (win && check_withdraw == 1) {
         if (wagerStageRemaining==-1){
             while (true) {
@@ -437,7 +274,6 @@ async function doBet() {
                             console.log("money enough for withdraw from vault")
                             console.log("Waiting for 2FA renewal...");
                             await new Promise(resolve => setTimeout(resolve, 30000));
-
                         }
                         config.funds = await apiClient.getFunds(config.currency);
                         balance = config.funds.available;
@@ -491,33 +327,18 @@ async function doBet() {
         if (currentStreak <= 11) {
             nextBet = nextBet * (1+(-(currentStreak-1)/100));
         }
-
         if (currentStreak === -5) {
             nextBet = baseBet;
         }
-
         //Start Wager Stage by reaching the Double WagerBet
         if (wagerStageRemaining>=0) {
             nextBet = wagerBet;
             chance = 51;
         }
-
-
-
         if (balance >=(50)) {
             console.log("check withdraw from vault for bet, amount in vault:")
-            config.funds = await apiClient.getFunds(config.currency);
-            balance = config.funds.available;
-            console.log(config.funds.vault)
-            if (config.funds.vault >= 1) {
-                console.log("withdraw money from vault")
-                await apiClient.withdrawFromVault(config.currency, config.funds.vault,config.password,config.twoFaSecret);
-                config.funds = await apiClient.getFunds(config.currency);
-                balance = config.funds.available;
-            }
             check_withdraw = 1;
         }
-
         chance = Math.min(Math.max(chance, MIN_CHANCE), MAX_CHANCE);
     }
 }
@@ -642,10 +463,10 @@ async function doBet() {
                     if (data.errors) {
                         console.error('[ERROR] Dicebet response: ', data);
 
-                        if (!simulation) {
-                            config.funds = await apiClient.getFunds(config.currency);
-                            balance = config.funds.available;
-                        }
+                        //if (!simulation) {
+                        //    config.funds = await apiClient.getFunds(config.currency);
+                        //    balance = config.funds.available;
+                        //}
                         // If it's an insufficient balance error, trigger a deposit
                         if (data.errors[0].errorType === 'insufficientBalance') {
                             await checkAndRefillBalance();
@@ -662,10 +483,10 @@ async function doBet() {
                 } catch (e) {
                     console.error('[ERROR]', e, result);
 
-                    if (!simulation) {
-                        config.funds = await apiClient.getFunds(config.currency);
-                        balance = config.funds.available;
-                    }
+                   // if (!simulation) {
+                   //     config.funds = await apiClient.getFunds(config.currency);
+                   //     balance = config.funds.available;
+                   // }
 
                     return null;
                 }
@@ -712,7 +533,7 @@ async function doBet() {
             if (win) {
                 roundProfit += diceRoll.payout;
                 profit += diceRoll.payout;
-
+                
                 if (currentStreak >= 0) {
                     currentStreak++;
                 } else {
@@ -750,9 +571,5 @@ async function doBet() {
         } catch (e) {
             console.error('[ERROR]', e);
 
-            if (!simulation) {
-                config.funds = await apiClient.getFunds(config.currency);
-                balance = config.funds.available;
-            }
         }
     }
