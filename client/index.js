@@ -476,11 +476,11 @@ setInterval(async () => {
         }
     }
 
-    //if (!simulation) {
-    //    if (i % 5 === 0) {
-    //        config.funds = await apiClient.getFunds(config.currency);
-    //    }
-    //}
+    if (!simulation) {
+        if (i % 1 === 0) {
+            config.funds = await apiClient.getFunds(config.currency);
+        }
+    }
 
     if (!simulation) {
         config.latency = apiClient.latency;
