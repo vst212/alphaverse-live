@@ -27,10 +27,10 @@ let startBalance = 26,
     DEPOSIT_COOLDOWN = 2 * 60 * 1000, // 2 minutes
     MANUAL_INTERVENTION_THRESHOLD = 999;
 
-
+let apiClient = new StakeApi(config.apiKey);;
     while (true) {
         try {
-            const apiClient = new StakeApi(config.apiKey);
+            
             config.funds = await apiClient.getFunds(config.currency);
             
             if (!config.funds) {
@@ -56,7 +56,7 @@ let startBalance = 26,
 
 // Initialize bot state variables
 let balance = config.funds.available,
-let version = 1.01,
+    version = 1.01,
     game = "dice",
     baseBet = 0.000063,// baseBet: 0.0001 TRX (minimum Bet)
     wagerMode = false,
