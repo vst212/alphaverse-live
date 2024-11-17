@@ -477,7 +477,7 @@ setInterval(async () => {
     }
 
     if (!simulation) {
-        if (i % 1 === 0) {
+        if (i % 30 === 0) {
             config.funds = await apiClient.getFunds(config.currency);
         }
     }
@@ -498,7 +498,7 @@ setInterval(async () => {
 
     await readDiceBotState();
     await sendStateReport();
-    await checkForBust();
+    //await checkForBust();
 }, 1000);
 
 console.log('[DEBUG] Client initialized');
