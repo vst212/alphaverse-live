@@ -56,7 +56,7 @@ let startBalance = 26,
 
 // Initialize bot state variables
 let balance = config.funds.available,
-    version = 1.01,
+let version = 1.01,
     game = "dice",
     baseBet = 0.000063,// baseBet: 0.0001 TRX (minimum Bet)
     wagerMode = false,
@@ -100,18 +100,19 @@ const MAX_CHANCE = 98.00;
 async function initialSetup() {
     try {
 
-        config.funds = await apiClient.getFunds(config.currency);
-        console.log(config.funds.vault)
+        //config.funds = await apiClient.getFunds(config.currency);
+        //console.log(config.funds.vault)
         if (config.funds.vault > 0) {
             console.log("withdraw money from vault")
-            await apiClient.withdrawFromVault(config.currency, config.funds.vault,config.password,config.twoFaSecret);
+            await apiClient.withdrawFromVault(config.currency, config.funds.vault-0.00000001,config.password,config.twoFaSecret);
             // Add a delay here for 2FA renewal
             console.log("Waiting for 2FA renewal...");
             await new Promise(resolve => setTimeout(resolve, 30000));
         }
 
-        config.funds = await apiClient.getFunds(config.currency);
-        balance = config.funds.available; // Update the global balance
+        //config.funds = await apiClient.getFunds(config.currency);
+        balance = config.funds.available+config.funds.vault-0.00000001; // Update the global balance
+        config.funds.vault=0.00000001;
         let balanceInitial = balance;
         let recoverAmount = config.recoverAmount;
         try{
@@ -169,10 +170,11 @@ async function initialSetup() {
                 console.log('Withdrawing everything from vault...');
                 await apiClient.withdrawFromVault(config.currency, config.funds.vault, config.password, config.twoFaSecret);
                 console.log(`Withdrawn ${config.funds.vault} ${config.currency} from vault`);
+                config.funds = await apiClient.getFunds(config.currency);
+                balance = config.funds.available;
             }
 
-            config.funds = await apiClient.getFunds(config.currency);
-            balance = config.funds.available;
+            
 
             // Add a delay here for 2FA renewal
             console.log("Waiting for 2FA renewal...");
