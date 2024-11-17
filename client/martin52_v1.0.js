@@ -732,8 +732,7 @@ async function doBet() {
                     'Wager: ' + wager.toFixed(8) + ' ' + config.currency.toUpperCase(),
                     'Profit: ' + profit.toFixed(8) + ' ' + config.currency.toUpperCase(),
                     'Bet size: ' + nextBet.toFixed(8) + ' ' + config.currency.toUpperCase(),
-                    'Current streak: ' + currentStreak,
-                    'View bet: https://stake.com/?betId=' + diceRoll.id + '&modal=bet'
+                    'Current streak: ' + currentStreak
                 ].join(' | ')
             );
 
