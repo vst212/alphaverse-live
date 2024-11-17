@@ -56,7 +56,7 @@ let startBalance = 26,
 
 // Initialize bot state variables
 let balance = config.funds.available,
-    version = 1.0,
+    version = 1.01,
     game = "dice",
     baseBet = 0.000063,// baseBet: 0.0001 TRX (minimum Bet)
     wagerMode = false,
