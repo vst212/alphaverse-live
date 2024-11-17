@@ -349,7 +349,7 @@ class StakeApi {
             "query": "mutation RotateSeedPair($seed: String!) {\n  rotateSeedPair(seed: $seed) {\n    clientSeed {\n      user {\n        id\n        activeClientSeed {\n          id\n          seed\n          __typename\n        }\n        activeServerSeed {\n          id\n          nonce\n          seedHash\n          nextSeedHash\n          __typename\n        }\n        __typename\n      }\n      __typename\n    }\n    __typename\n  }\n}\n",
             "operationName": "RotateSeedPair",
             "variables": {
-                "seed": generateRandomString(21)
+                "seed": (21)
             }
         });
     }
@@ -379,7 +379,7 @@ class StakeApi {
             "variables": {
                 "currency": currency,
                 "amount": betSize,
-                "identifier": generateRandomString(21)
+                "identifier": uuidv4()
             }
         });
     }
@@ -406,7 +406,7 @@ class StakeApi {
             "variables": {
                 "amount": betSize,
                 "currency": currency,
-                "identifier": generateRandomString(21),
+                "identifier": uuidv4(),
                 "difficulty": difficulty,
                 "eggs": eggs
             },
@@ -471,7 +471,7 @@ fragment CasinoGameDragonTower on CasinoGameDragonTower {
             "variables": {
                 "amount": betSize,
                 "currency": currency,
-                "identifier": generateRandomString(21),
+                "identifier": uuidv4(),
                 "multiplierTarget": parseFloat(target.toFixed(2))
             }
         });
@@ -544,7 +544,7 @@ fragment CasinoGameDragonTower on CasinoGameDragonTower {
             `,
             "variables": {
                 "currency": currency,
-                "identifier": generateRandomString(21),
+                "identifier": uuidv4(),
                 "tie": tie,
                 "player": player,
                 "banker": banker
@@ -597,7 +597,7 @@ fragment CasinoGameDragonTower on CasinoGameDragonTower {
         return this.request({
             "variables": {
                 "currency": currency,
-                "identifier": generateRandomString(21),
+                "identifier": uuidv4(),
                 "numbers": numbers,
                 "colors": colors,
                 "rows": rows,
@@ -725,7 +725,7 @@ fragment RouletteStateFragment on CasinoGameRoulette {
                 amount: betSize,
                 currency: currency,
                 minesCount: minesCount,
-                identifier: generateRandomString(21)
+                identifier: uuidv4()
             }
         });
     }
@@ -767,7 +767,7 @@ fragment RouletteStateFragment on CasinoGameRoulette {
             `,
             variables: {
                 fields: selectedTiles,
-                identifier: generateRandomString(21)
+                identifier: uuidv4()
             }
         };
     
@@ -823,7 +823,7 @@ minesCashout() {
             }
         `,
         variables: {
-            identifier: generateRandomString(21)
+            identifier: uuidv4()
         }
     });
 }
