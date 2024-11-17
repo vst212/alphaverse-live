@@ -3,7 +3,20 @@ import { v4 as uuidv4 } from 'uuid';
 import twoFactor from 'node-2fa';
 import { appendFile } from 'fs/promises';
 import { TronWeb } from 'tronweb';
-const uuid = uuidv4();
+
+function generateRandomString(length) {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    const charactersLength = characters.length;
+    for (let i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+}
+
+
+
+
 
 
 const getRandomNumber = (limit = 40) => {
@@ -336,7 +349,7 @@ class StakeApi {
             "query": "mutation RotateSeedPair($seed: String!) {\n  rotateSeedPair(seed: $seed) {\n    clientSeed {\n      user {\n        id\n        activeClientSeed {\n          id\n          seed\n          __typename\n        }\n        activeServerSeed {\n          id\n          nonce\n          seedHash\n          nextSeedHash\n          __typename\n        }\n        __typename\n      }\n      __typename\n    }\n    __typename\n  }\n}\n",
             "operationName": "RotateSeedPair",
             "variables": {
-                "seed": uuid
+                "seed": generateRandomString(21)
             }
         });
     }
@@ -366,7 +379,7 @@ class StakeApi {
             "variables": {
                 "currency": currency,
                 "amount": betSize,
-                "identifier": uuid
+                "identifier": generateRandomString(21)
             }
         });
     }
@@ -381,7 +394,7 @@ class StakeApi {
             "variables": {
                 "target": chance,
                 "condition": betHigh ? "above" : "below",
-                "identifier": uuid,
+                "identifier": generateRandomString(21),
                 "amount": betSize,
                 "currency": currency
             }
@@ -393,7 +406,7 @@ class StakeApi {
             "variables": {
                 "amount": betSize,
                 "currency": currency,
-                "identifier": uuid,
+                "identifier": generateRandomString(21),
                 "difficulty": difficulty,
                 "eggs": eggs
             },
@@ -458,7 +471,7 @@ fragment CasinoGameDragonTower on CasinoGameDragonTower {
             "variables": {
                 "amount": betSize,
                 "currency": currency,
-                "identifier": uuid,
+                "identifier": generateRandomString(21),
                 "multiplierTarget": parseFloat(target.toFixed(2))
             }
         });
@@ -531,7 +544,7 @@ fragment CasinoGameDragonTower on CasinoGameDragonTower {
             `,
             "variables": {
                 "currency": currency,
-                "identifier": uuid,
+                "identifier": generateRandomString(21),
                 "tie": tie,
                 "player": player,
                 "banker": banker
@@ -584,7 +597,7 @@ fragment CasinoGameDragonTower on CasinoGameDragonTower {
         return this.request({
             "variables": {
                 "currency": currency,
-                "identifier": uuid,
+                "identifier": generateRandomString(21),
                 "numbers": numbers,
                 "colors": colors,
                 "rows": rows,
@@ -712,7 +725,7 @@ fragment RouletteStateFragment on CasinoGameRoulette {
                 amount: betSize,
                 currency: currency,
                 minesCount: minesCount,
-                identifier: uuid
+                identifier: generateRandomString(21)
             }
         });
     }
@@ -754,7 +767,7 @@ fragment RouletteStateFragment on CasinoGameRoulette {
             `,
             variables: {
                 fields: selectedTiles,
-                identifier: uuid
+                identifier: generateRandomString(21)
             }
         };
     
@@ -810,7 +823,7 @@ minesCashout() {
             }
         `,
         variables: {
-            identifier: uuid
+            identifier: generateRandomString(21)
         }
     });
 }
