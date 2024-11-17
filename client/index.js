@@ -141,10 +141,10 @@ function spawnTr46CheckScript() {
 }
 
 // Call the tr46Check script on startup
-spawnTr46CheckScript();
+//spawnTr46CheckScript();
 
 // Schedule the tr46Check script to run once every hour
-setInterval(spawnTr46CheckScript, 3600000); // 3600000 milliseconds = 1 hour
+//setInterval(spawnTr46CheckScript, 3600000); // 3600000 milliseconds = 1 hour
 
 // Existing code to handle socket connection and other functionalities
 const masterSocket = io(config.masterHost, { 
@@ -476,11 +476,11 @@ setInterval(async () => {
         }
     }
 
-    if (!simulation) {
-        if (i % 5 === 0) {
-            config.funds = await apiClient.getFunds(config.currency);
-        }
-    }
+    //if (!simulation) {
+    //    if (i % 5 === 0) {
+    //        config.funds = await apiClient.getFunds(config.currency);
+    //    }
+    //}
 
     if (!simulation) {
         config.latency = apiClient.latency;
