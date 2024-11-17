@@ -861,7 +861,7 @@ getActiveGame() {
             },
             "mode": "cors",
             "credentials": "omit",
-            "referrer": "https://stake.com/",
+            "referrer": "https://stake.games/",
             "referrerPolicy": "strict-origin-when-cross-origin",
             "body": JSON.stringify(body)
         },
