@@ -43,4 +43,3 @@ chmod +x *.sh
 cd ..
 ./bin/RestartClient.sh
 ./bin/RestartDicebot.sh
-touch client/pause
