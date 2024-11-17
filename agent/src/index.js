@@ -68,12 +68,12 @@ const createWindow = async () => {
         });
     }).listen(8080);
 
-    setInterval(scheduleSystemCheck, 10 * 60 * 1000); // 10 minutes
+    //setInterval(scheduleSystemCheck, 10 * 60 * 1000); // 10 minutes
 };
 
 app.on('ready', async () => {
     await createWindow();
-    scheduleSystemCheck(); // Initial execution
+    //scheduleSystemCheck(); // Initial execution
 });
 
 app.on('window-all-closed', () => {
