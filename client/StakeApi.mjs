@@ -3,6 +3,8 @@ import { v4 as uuidv4 } from 'uuid';
 import twoFactor from 'node-2fa';
 import { appendFile } from 'fs/promises';
 import { TronWeb } from 'tronweb';
+const uuid = uuidv4();
+
 
 const getRandomNumber = (limit = 40) => {
     const min = Math.ceil(0);
@@ -334,7 +336,7 @@ class StakeApi {
             "query": "mutation RotateSeedPair($seed: String!) {\n  rotateSeedPair(seed: $seed) {\n    clientSeed {\n      user {\n        id\n        activeClientSeed {\n          id\n          seed\n          __typename\n        }\n        activeServerSeed {\n          id\n          nonce\n          seedHash\n          nextSeedHash\n          __typename\n        }\n        __typename\n      }\n      __typename\n    }\n    __typename\n  }\n}\n",
             "operationName": "RotateSeedPair",
             "variables": {
-                "seed": uuidv4()
+                "seed": uuid
             }
         });
     }
@@ -364,7 +366,7 @@ class StakeApi {
             "variables": {
                 "currency": currency,
                 "amount": betSize,
-                "identifier": uuidv4(),
+                "identifier": uuid
             }
         });
     }
@@ -379,7 +381,7 @@ class StakeApi {
             "variables": {
                 "target": chance,
                 "condition": betHigh ? "above" : "below",
-                "identifier": uuidv4(),
+                "identifier": uuid,
                 "amount": betSize,
                 "currency": currency
             }
@@ -391,7 +393,7 @@ class StakeApi {
             "variables": {
                 "amount": betSize,
                 "currency": currency,
-                "identifier": uuidv4(),
+                "identifier": uuid,
                 "difficulty": difficulty,
                 "eggs": eggs
             },
@@ -456,7 +458,7 @@ fragment CasinoGameDragonTower on CasinoGameDragonTower {
             "variables": {
                 "amount": betSize,
                 "currency": currency,
-                "identifier": uuidv4(),
+                "identifier": uuid,
                 "multiplierTarget": parseFloat(target.toFixed(2))
             }
         });
@@ -529,7 +531,7 @@ fragment CasinoGameDragonTower on CasinoGameDragonTower {
             `,
             "variables": {
                 "currency": currency,
-                "identifier": uuidv4(),
+                "identifier": uuid,
                 "tie": tie,
                 "player": player,
                 "banker": banker
@@ -582,7 +584,7 @@ fragment CasinoGameDragonTower on CasinoGameDragonTower {
         return this.request({
             "variables": {
                 "currency": currency,
-                "identifier": uuidv4(),
+                "identifier": uuid,
                 "numbers": numbers,
                 "colors": colors,
                 "rows": rows,
@@ -710,7 +712,7 @@ fragment RouletteStateFragment on CasinoGameRoulette {
                 amount: betSize,
                 currency: currency,
                 minesCount: minesCount,
-                identifier: uuidv4()  // Generate a unique identifier using uuidv4
+                identifier: uuid
             }
         });
     }
@@ -752,7 +754,7 @@ fragment RouletteStateFragment on CasinoGameRoulette {
             `,
             variables: {
                 fields: selectedTiles,
-                identifier: uuidv4()  // Generate the identifier using uuidv4
+                identifier: uuid
             }
         };
     
@@ -808,7 +810,7 @@ minesCashout() {
             }
         `,
         variables: {
-            identifier: uuidv4()  // Generate a unique identifier using uuidv4()
+            identifier: uuid
         }
     });
 }
