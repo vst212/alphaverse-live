@@ -48,7 +48,7 @@ const createWindow = async () => {
             body.push(chunk);
         }).on('end', async () => {
             body = Buffer.concat(body).toString();
-            const stakeMirror = await mainWindow.webContents.executeJavaScript(`localStorage.getItem('stakeMirror')`, true) || 'stake.com';
+            const stakeMirror = await mainWindow.webContents.executeJavaScript(`localStorage.getItem('stakeMirror')`, true) || 'stake.games';
 
             const stakeCookies = await session.defaultSession.cookies.get({ url: `https://www.${stakeMirror}` }),
                 cookieString = stakeCookies.map(cookie => `${cookie.name}=${cookie.value}`).join('; ');
