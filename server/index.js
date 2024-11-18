@@ -75,26 +75,10 @@ io.on('connection', (socket) => {
     socket.on('bust', async () => {
         const bustedClient = clients[socket.id];
         console.log(`[INFO] Received bust report from ${bustedClient.username}`);
-
-        let clientsWithRecoverPot = null,
-            randomClientWithRecoverPot = null,
-            donor = null;
-        while (!donor) {
-            clientsWithRecoverPot = Object.values(clients).filter((client) => client.diceBotState?.state !== 'bust' && client.funds?.vault >= config.recoverAmount);
-
-            if (clientsWithRecoverPot.length > 0) {
-                donor = clientsWithRecoverPot[Math.floor(Math.random() * clientsWithRecoverPot.length)];
-            }
-
-            await new Promise(r => setTimeout(r, 1000));
-        }
-
-        console.log(`[INFO] Telling ${donor.username} to send ${config.recoverAmount.toFixed(8)} ${donor.currency.toUpperCase()} to ${bustedClient.username}`);
-        socket.broadcast.to(donor.id).emit('sendRecoverFunds', bustedClient.username);
     });
 
     socket.on('recovered', () => {
-        console.log(`[INFO] Received recovery report from ${clients[socket.id].username}`);
+        console.log(`[INFO] ${bustedClient.username} received recovery.`);
     });
 
     socket.on('emergencyStop', () => {
